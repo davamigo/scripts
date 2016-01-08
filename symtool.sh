@@ -120,6 +120,11 @@ do
     # Delete the "app/cache" folder if needed
     if [ $clear == true -a -d "$apppath/cache" ]
     then
+	    if [ $quiet == false ]
+    	then
+    		echo -e "Deleting app/cache..."
+    	fi;
+
         rm -rf "$apppath/cache" 1> /dev/null 2> /dev/null
         if [ $? != 0 ]
         then
@@ -131,6 +136,11 @@ do
     # Create the "app/cache" folder if needed.
     if [ ! -d "$apppath/cache" ]
     then
+	    if [ $quiet == false ]
+    	then
+	    	echo -e "Creating app/cache..."
+	    fi;
+
         mkdir "$apppath/cache" 1> /dev/null 2> /dev/null
         if [ $? != 0 ]
         then
@@ -142,6 +152,10 @@ do
     # Access permisions change of "app/cache" folder
     if [ $(whoami) == "root" ]
     then
+	    if [ $quiet == false ]
+    	then
+	    	echo -e "Changing access permissions to app/cache..."
+	    fi;
 
         # Chown "app/cache" folder if needed
         chown -R $user:$group $apppath/cache/
@@ -163,6 +177,11 @@ do
     # Create the "app/logs" folder if needed.
     if [ ! -d "$apppath/logs" ]
     then
+   	    if [ $quiet == false ]
+    	then
+	    	echo -e "Creating app/logs..."
+	    fi;
+
         mkdir "$apppath/logs" 1> /dev/null 2> /dev/null
         if [ $? != 0 ]
         then
@@ -174,6 +193,10 @@ do
     # Access permisions change of "app/logs" folder
     if [ $(whoami) == "root" ]
     then
+	    if [ $quiet == false ]
+    	then
+	    	echo -e "Changing access permissions to app/logs..."
+	    fi;
 
         # Chown "app/logs" folder if needed
         chown -R $user:$group $apppath/logs/
@@ -195,6 +218,11 @@ do
     # Delete assets in the "web" folders if needed
     if [ $clear == true ]
     then
+	    if [ $quiet == false ]
+    	then
+	    	echo -e "Deleting web subfolders..."
+	    fi;
+
         rm -rf "$webpath/bundles"       1> /dev/null 2> /dev/null
         rm -rf "$webpath/images"        1> /dev/null 2> /dev/null
         rm -rf "$webpath/image"         1> /dev/null 2> /dev/null
@@ -213,6 +241,8 @@ do
         # Run composer install or update if needed
         if [ "$operation" == "install" -o "$operation" == "update" ]
         then
+    		echo -e "Ejecuting composer $operation..."
+
             php $composer $operation
             if [ $? != 0 ]
             then
@@ -222,13 +252,16 @@ do
         fi;
 
         # Clear the Symfony cache
+  		echo -e "Clearing the Symfony cache..."
         php $apppath/console -e=dev cache:clear
         php $apppath/console -e=prod cache:clear
 
         # Assets install
+  		echo -e "Installing web assets..."
         php $apppath/console assets:install $webpath --symlink
 
         # Assets dump
+  		echo -e "Dumping assetic files..."
         php $apppath/console -e=dev assetic:dump
         php $apppath/console -e=prod assetic:dump
 
