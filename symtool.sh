@@ -4,6 +4,7 @@ clear=false;
 quiet=false;
 help=false;
 test=false;
+assets=true;
 operation=;
 
 folder=$(pwd);
@@ -11,7 +12,7 @@ user="david";
 group="david";
 composer="/usr/local/bin/composer";
 
-args=$(getopt -o "ciuqh" --long "clear,install,update,test,user:,group:,quiet,help" -- "$@");
+args=$(getopt -o "cniuqh" --long "clear,no-assets,install,update,test,user:,group:,quiet,help" -- "$@");
 if [ $? != 0 ]
 then
     help=true;
@@ -26,6 +27,10 @@ do
         '-c' | '--clear')
             clear=true;
             shift;;
+
+		'-n' | '--no-assets')
+			assets=false;
+			shift;;
 
         '-i' | '--install')
             operation="install";
@@ -73,6 +78,7 @@ then
     echo -e "\t-h, --help\n\t\tShow this help."
     echo -e "\t-q, --quiet\n\t\tQuiet mode. Don't show anything."
     echo -e "\t-c, --clear\n\t\tDelete the cache and web folders before run."
+    echo -e "\t-n, --no-assets\n\t\tDon't install assets. Only clear cache."
     echo -e "\t-i, --install\n\t\tRun composer install."
     echo -e "\t-u, --update\n\t\tRun composer update."
     echo -e "\t--test\n\t\tRun unit testing."
@@ -256,14 +262,17 @@ do
         php $apppath/console -e=dev cache:clear
         php $apppath/console -e=prod cache:clear
 
-        # Assets install
-  		echo -e "Installing web assets..."
-        php $apppath/console assets:install $webpath --symlink
+		if [ $assets == true ]
+		then
+		    # Assets install
+	  		echo -e "Installing web assets..."
+		    php $apppath/console assets:install $webpath --symlink
 
-        # Assets dump
-  		echo -e "Dumping assetic files..."
-        php $apppath/console -e=dev assetic:dump
-        php $apppath/console -e=prod assetic:dump
+		    # Assets dump
+	  		echo -e "Dumping assetic files..."
+		    php $apppath/console -e=dev assetic:dump
+		    php $apppath/console -e=prod assetic:dump
+		fi;
 
     # Quiet mode
     else
@@ -283,12 +292,15 @@ do
         php $apppath/console -e=dev cache:clear     1> /dev/null 2> /dev/null
         php $apppath/console -e=prod cache:clear    1> /dev/null 2> /dev/null
 
-        # Assets install
-        php $apppath/console assets:install $webpath --symlink  1> /dev/null 2> /dev/null
+		if [ $assets == true ]
+		then
+	        # Assets install
+	        php $apppath/console assets:install $webpath --symlink  1> /dev/null 2> /dev/null
 
-        # Assets dump
-        php $apppath/console -e=dev assetic:dump    1> /dev/null 2> /dev/null
-        php $apppath/console -e=prod assetic:dump   1> /dev/null 2> /dev/null
+	        # Assets dump
+	        php $apppath/console -e=dev assetic:dump    1> /dev/null 2> /dev/null
+	        php $apppath/console -e=prod assetic:dump   1> /dev/null 2> /dev/null
+	    fi;
     fi;
 
     # Run tests if needed
@@ -300,8 +312,18 @@ do
     # Final access permisions change
     if [ $(whoami) == "root" ]
     then
+	    if [ $quiet == false ]
+    	then
+	    	echo -e "Final access permissions update..."
+	    fi;
+
         chown -R $user:$group $path/    1> /dev/null 2> /dev/null
         chmod -R a+rw $apppath/cache/   1> /dev/null 2> /dev/null
+    fi;
+
+    if [ $quiet == false ]
+	then
+    	echo -e "Process finished successfully.\n"
     fi;
 
     # Process end
