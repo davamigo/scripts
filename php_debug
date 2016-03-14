@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Simple script to enable or disable the xdebug extension
+
+case $1 in
+  on)
+    sudo php5enmod xdebug
+  ;;
+  off)
+    sudo php5dismod xdebug
+  ;;
+  *)
+    echo "Usage: php_debug on|off"
+  ;;
+esac
+
