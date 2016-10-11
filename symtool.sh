@@ -266,7 +266,7 @@ do
 		then
 		    # Assets install
 	  		echo -e "Installing web assets..."
-		    php $apppath/console assets:install $webpath --symlink
+		    php $apppath/console assets:install $webpath --symlink --relative
 
 		    # Assets dump
 	  		echo -e "Dumping assetic files..."
@@ -295,7 +295,7 @@ do
 		if [ $assets == true ]
 		then
 	        # Assets install
-	        php $apppath/console assets:install $webpath --symlink  1> /dev/null 2> /dev/null
+	        php $apppath/console assets:install $webpath --symlink --relative 1> /dev/null 2> /dev/null
 
 	        # Assets dump
 	        php $apppath/console -e=dev assetic:dump    1> /dev/null 2> /dev/null
